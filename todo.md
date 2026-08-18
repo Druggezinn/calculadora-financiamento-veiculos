@@ -37,3 +37,6 @@
 - [x] Incluir um modelo de configuração sem segredos em `docs/vps-config.template` para orientar a VPS.
 - [x] Adicionar teste automatizado da exportação em PDF, cobrindo cenário, comparativo, aviso de simulação e nome esperado.
 - [x] Adicionar testes da mutation `finance.syncRates` para bloqueio de não-admin, sincronização parcial por CNPJ e falha da fonte oficial.
+- [x] Elaborar um guia passo a passo de instalação em VPS Ubuntu, incluindo domínio, banco de dados, variáveis seguras, HTTPS, systemd e provisionamento do administrador.
+- [x] Corrigir o guia para usar os comandos de migração executáveis pelo projeto e validar a sintaxe crítica antes da entrega.
+- [x] Validar o subcomando de migração do Drizzle e revisar os comandos de migração, backup e build documentados no guia de VPS.
