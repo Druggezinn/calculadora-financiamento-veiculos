@@ -1,7 +1,9 @@
 import { COOKIE_NAME } from "@shared/const";
+import * as db from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { adminProcedure, publicProcedure, router } from "./_core/trpc";
+import { z } from "zod";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -16,13 +18,22 @@ export const appRouter = router({
       } as const;
     }),
   }),
-
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  finance: router({
+    listRates: publicProcedure.query(() => db.listActiveFinancialInstitutions()),
+    updateRate: adminProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          monthlyRate: z.number().min(0).max(100),
+          annualRate: z.number().min(0).max(1_000).nullable().optional(),
+          sourceUrl: z.string().url().nullable().optional(),
+          sourceDescription: z.string().max(1_000).nullable().optional(),
+          referenceStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+          referenceEnd: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+        }),
+      )
+      .mutation(({ input }) => db.updateFinancialInstitutionRate(input)),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

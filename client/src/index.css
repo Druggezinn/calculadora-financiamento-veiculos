@@ -175,3 +175,61 @@
     }
   }
 }
+
+/* Identidade AutoFin: tons minerais, verde-petróleo e hierarquia de alta legibilidade. */
+:root {
+  --primary: oklch(0.34 0.066 183);
+  --primary-foreground: oklch(0.985 0.01 94);
+  --sidebar-primary: oklch(0.34 0.066 183);
+  --sidebar-primary-foreground: oklch(0.985 0.01 94);
+  --chart-1: oklch(0.66 0.11 183);
+  --chart-2: oklch(0.55 0.095 183);
+  --chart-3: oklch(0.44 0.08 183);
+  --chart-4: oklch(0.36 0.065 183);
+  --chart-5: oklch(0.28 0.052 183);
+  --radius: 1rem;
+  --background: oklch(0.975 0.01 88);
+  --foreground: oklch(0.235 0.028 196);
+  --card: oklch(0.995 0.005 90);
+  --card-foreground: oklch(0.235 0.028 196);
+  --popover: oklch(0.995 0.005 90);
+  --popover-foreground: oklch(0.235 0.028 196);
+  --secondary: oklch(0.945 0.018 88);
+  --secondary-foreground: oklch(0.32 0.035 196);
+  --muted: oklch(0.94 0.012 88);
+  --muted-foreground: oklch(0.51 0.03 196);
+  --accent: oklch(0.915 0.045 174);
+  --accent-foreground: oklch(0.25 0.05 183);
+  --destructive: oklch(0.57 0.2 27);
+  --border: oklch(0.89 0.015 88);
+  --input: oklch(0.89 0.015 88);
+  --ring: oklch(0.45 0.075 183);
+  --sidebar: oklch(0.995 0.005 90);
+  --sidebar-foreground: oklch(0.235 0.028 196);
+  --sidebar-accent: oklch(0.945 0.018 88);
+  --sidebar-accent-foreground: oklch(0.25 0.05 183);
+  --sidebar-border: oklch(0.89 0.015 88);
+  --sidebar-ring: oklch(0.45 0.075 183);
+}
+
+@layer base {
+  body {
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    background-image:
+      radial-gradient(circle at 90% -10%, oklch(0.85 0.07 173 / 45%), transparent 30rem),
+      radial-gradient(circle at -5% 60%, oklch(0.92 0.025 75 / 80%), transparent 28rem);
+  }
+}
+
+@layer components {
+  .finance-grid {
+    background-image: linear-gradient(oklch(0.23 0.028 196 / 4%) 1px, transparent 1px), linear-gradient(90deg, oklch(0.23 0.028 196 / 4%) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .micro-label {
+    font-family: "DM Mono", ui-monospace, monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+}

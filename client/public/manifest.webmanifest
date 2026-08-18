@@ -1,0 +1,26 @@
+{
+  "name": "AutoFin — Simulador de Margem",
+  "short_name": "AutoFin",
+  "description": "Simulador de financiamento de veículos com comparativo de taxas.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f5ee",
+  "theme_color": "#123b3a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/manus-storage/autofin-192_0fc769aa.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/manus-storage/autofin-512_ea62cbb7.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, double, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,4 +25,26 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Taxas de referência exibidas na calculadora. Cada linha é administrada pelo
+ * proprietário e preserva sua proveniência e período de vigência.
+ */
+export const financialInstitutions = mysqlTable("financialInstitutions", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 64 }).notNull().unique(),
+  displayName: varchar("displayName", { length: 120 }).notNull(),
+  legalName: varchar("legalName", { length: 200 }).notNull(),
+  monthlyRate: double("monthlyRate").notNull(),
+  annualRate: double("annualRate"),
+  sourceUrl: text("sourceUrl"),
+  sourceDescription: text("sourceDescription"),
+  referenceStart: varchar("referenceStart", { length: 10 }),
+  referenceEnd: varchar("referenceEnd", { length: 10 }),
+  sortOrder: int("sortOrder").notNull().default(0),
+  isActive: boolean("isActive").notNull().default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FinancialInstitution = typeof financialInstitutions.$inferSelect;
+export type InsertFinancialInstitution = typeof financialInstitutions.$inferInsert;

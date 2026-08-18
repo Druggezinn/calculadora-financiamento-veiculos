@@ -1,6 +1,10 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import {
+  financialInstitutions,
+  InsertUser,
+  users,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +93,54 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function listActiveFinancialInstitutions() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(financialInstitutions)
+    .where(eq(financialInstitutions.isActive, true))
+    .orderBy(asc(financialInstitutions.sortOrder));
+}
+
+export async function updateFinancialInstitutionRate(input: {
+  id: number;
+  monthlyRate: number;
+  annualRate?: number | null;
+  sourceUrl?: string | null;
+  sourceDescription?: string | null;
+  referenceStart?: string | null;
+  referenceEnd?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Banco de dados indisponível.");
+
+  const updateValues = {
+    monthlyRate: input.monthlyRate,
+    ...("annualRate" in input ? { annualRate: input.annualRate ?? null } : {}),
+    ...("sourceUrl" in input ? { sourceUrl: input.sourceUrl ?? null } : {}),
+    ...("sourceDescription" in input
+      ? { sourceDescription: input.sourceDescription ?? null }
+      : {}),
+    ...("referenceStart" in input
+      ? { referenceStart: input.referenceStart ?? null }
+      : {}),
+    ...("referenceEnd" in input
+      ? { referenceEnd: input.referenceEnd ?? null }
+      : {}),
+  };
+
+  await db
+    .update(financialInstitutions)
+    .set(updateValues)
+    .where(eq(financialInstitutions.id, input.id));
+
+  const result = await db
+    .select()
+    .from(financialInstitutions)
+    .where(eq(financialInstitutions.id, input.id))
+    .limit(1);
+
+  return result[0];
+}

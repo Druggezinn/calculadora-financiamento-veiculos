@@ -1,0 +1,21 @@
+# Project TODO
+
+- [x] Modelar as entidades de financeiras e taxas mensais editáveis pelo proprietário.
+- [x] Pesquisar e documentar fonte, escopo e data de referência do IOF para crédito de pessoa física.
+- [x] Definir a regra de cálculo Price, inclusão de IOF e métrica de CET estimado apresentada no produto.
+- [x] Implementar procedimentos públicos para consulta de taxas e procedimentos administrativos protegidos para sua edição.
+- [x] Criar formulário com valor do veículo, entrada e valor financiado calculado automaticamente.
+- [x] Implementar modo por parcela alvo, retornando prazo estimado por financeira.
+- [x] Implementar modo por número de parcelas, retornando parcela estimada por financeira.
+- [x] Exibir comparativo por financeira com parcela, principal com IOF, total pago e CET estimado.
+- [x] Implementar painel protegido para edição manual das taxas e da data de vigência.
+- [x] Persistir localmente o histórico dos cálculos da sessão atual.
+- [x] Criar interface de dashboard premium, elegante, mobile-first e acessível.
+- [x] Adicionar manifest, ícones, metadados Apple e service worker para instalação PWA e uso offline básico.
+- [x] Elaborar documentação de implantação em VPS com variáveis, build, execução e HTTPS obrigatório para PWA.
+- [x] Escrever e executar testes unitários para as fórmulas financeiras e operações administrativas.
+- [x] Validar o layout em desktop e iPhone, revisar os resultados e salvar o checkpoint final.
+- [x] Persistir no histórico da sessão um snapshot completo do cenário e do melhor resultado calculado por financeira.
+- [x] Adicionar estado de carregamento dedicado na área comparativa enquanto as taxas são consultadas.
+- [x] Pré-cachear o app shell e os ícones no service worker, com fallback de navegação para uso offline básico.
+- [x] Verificar que os arquivos essenciais do app shell foram armazenados no cache da PWA após a primeira visita controlada.
