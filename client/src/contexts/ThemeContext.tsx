@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { readThemePreference, saveThemePreference, type Theme } from "./themePreference";
+import { resolveInitialTheme, saveThemePreference, type Theme } from "./themePreference";
 
 interface ThemeContextType {
   theme: Theme;
@@ -20,12 +20,18 @@ export function ThemeProvider({
   defaultTheme = "light",
   switchable = false,
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (switchable) {
-      return readThemePreference(typeof window === "undefined" ? undefined : window.localStorage, defaultTheme);
+  const [themeState, setThemeState] = useState(() => {
+    if (!switchable || typeof window === "undefined") {
+      return { theme: defaultTheme, source: "fallback" as const };
     }
-    return defaultTheme;
+
+    return resolveInitialTheme(
+      window.localStorage,
+      typeof window.matchMedia === "function" ? window.matchMedia.bind(window) : undefined,
+      defaultTheme,
+    );
   });
+  const theme = themeState.theme;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -34,15 +40,40 @@ export function ThemeProvider({
     } else {
       root.classList.remove("dark");
     }
+    root.style.colorScheme = theme;
 
-    if (switchable) {
+    if (switchable && themeState.source === "saved") {
       saveThemePreference(window.localStorage, theme);
     }
-  }, [theme, switchable]);
+  }, [theme, switchable, themeState.source]);
+
+  useEffect(() => {
+    if (
+      !switchable ||
+      themeState.source === "saved" ||
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    ) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const updateThemeFromSystem = (event: MediaQueryListEvent) => {
+      setThemeState(current => current.source === "saved"
+        ? current
+        : { theme: event.matches ? "dark" : "light", source: "system" });
+    };
+
+    mediaQuery.addEventListener("change", updateThemeFromSystem);
+    return () => mediaQuery.removeEventListener("change", updateThemeFromSystem);
+  }, [switchable, themeState.source]);
 
   const toggleTheme = switchable
     ? () => {
-        setTheme(prev => (prev === "light" ? "dark" : "light"));
+        setThemeState(current => ({
+          theme: current.theme === "light" ? "dark" : "light",
+          source: "saved",
+        }));
       }
     : undefined;
 
