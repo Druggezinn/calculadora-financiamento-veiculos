@@ -184,6 +184,9 @@ export default function Home() {
   const calculationLabel = mode === "payment" ? "Parcela desejada" : "Prazo desejado";
   const brand = settingsQuery.data;
   const hasLocalAdmin = authStatusQuery.data?.hasAdmin ?? true;
+  const visualReview = import.meta.env.DEV ? new URLSearchParams(window.location.search).get("visual-review") : null;
+  const isPreviewError = visualReview === "error";
+  const isPreviewAdmin = visualReview === "admin";
 
   const lowestResult = useMemo(
     () => results.reduce<RateResult | null>((lowest, current) => {
@@ -371,7 +374,7 @@ export default function Home() {
               {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
               <span className="sr-only">{theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}</span>
             </Button>
-            {!authLoading && user?.role === "admin" ? (
+            {!authLoading && (user?.role === "admin" || isPreviewAdmin) ? (
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="rounded-xl border-border bg-card text-xs font-bold shadow-sm">
@@ -498,7 +501,7 @@ export default function Home() {
                   <div className="mb-6 flex items-center gap-3"><Loader2 className="size-4 animate-spin text-primary" /><div><p className="text-sm font-bold text-foreground">Carregando a tabela de taxas</p><p className="mt-0.5 text-xs text-muted-foreground">Preparando seu comparativo.</p></div></div>
                   <div className="grid gap-3 lg:grid-cols-2">{Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-42 animate-pulse rounded-2xl bg-secondary" />)}</div>
                 </div>
-              ) : ratesQuery.isError ? (
+              ) : ratesQuery.isError || isPreviewError ? (
                 <div className="grid min-h-78 place-items-center rounded-2xl border border-dashed border-destructive/40 bg-destructive/15 p-6 text-center"><div><RefreshCw className="mx-auto size-6 text-destructive" /><p className="mt-3 text-sm font-bold text-destructive">Não foi possível carregar as taxas.</p><Button variant="link" onClick={() => ratesQuery.refetch()} className="mt-1 text-destructive">Tentar novamente</Button></div></div>
               ) : results.length === 0 ? (
                 <div className="grid min-h-78 place-items-center rounded-2xl border border-dashed border-border bg-muted/60 p-7 text-center"><div className="max-w-xs"><div className="mx-auto grid size-12 place-items-center rounded-2xl bg-secondary text-primary"><ArrowUpRight className="size-5" /></div><p className="mt-4 text-sm font-extrabold text-foreground">Seu comparativo aparece aqui.</p><p className="mt-2 text-xs leading-5 text-muted-foreground">Preencha os dados da venda e escolha a estratégia para visualizar as possibilidades por financeira.</p></div></div>

@@ -46,5 +46,5 @@
 - [x] Revisar os estados de formulário, comparativo, carregamento, erro, histórico e diálogo administrativo no modo escuro.
 - [x] Validar explicitamente a legibilidade do modo escuro em desktop e iPhone após a tokenização visual.
 - [x] Tokenizar as telas e componentes restantes com cores fixas relevantes ao aplicativo.
-- [ ] Validar no navegador os estados de carregamento, erro, vazio, comparativo, histórico e o painel administrativo no modo escuro.
+- [x] Validar no navegador os estados de carregamento, erro, vazio, comparativo, histórico e o painel administrativo no modo escuro.
 - [x] Repetir a revisão pós-tokenização em desktop e viewport de iPhone, registrando a legibilidade dos componentes principais.

@@ -43,3 +43,9 @@ A captura pós-tokenização no viewport de iPhone confirmou que o alternador de
 Para validar o estado de erro sem alterar dados da aplicação, foi preparada uma falha de consulta controlada no navegador em modo escuro. A verificação subsequente revisará a resposta visual do comparativo e restaurará o comportamento normal da página.
 
 A tentativa não alterou o estado de consulta já resolvido do cliente; o comparativo retornou ao estado vazio normal. A função de rede original foi restaurada imediatamente. Os estilos de erro permanecem cobertos por tokens semânticos no código, sem impacto nos dados ou na operação do navegador.
+
+Uma inspeção posterior para acessar o cliente de consultas não localizou uma árvore React exposta na sessão de navegador; nenhuma modificação adicional de estado foi realizada. A validação do estado de erro permanece documentada como pendente para uma sessão autenticada ou ambiente de teste de interface dedicado.
+
+Com os estados de revisão exclusivos do desenvolvimento, o comparativo exibiu o erro de carregamento em modo escuro com ícone, mensagem e ação de nova tentativa legíveis. A visualização administrativa exibiu o botão **Gerenciar taxas** no cabeçalho preservando o contraste do estado protegido, sem conceder permissão real ou executar qualquer alteração de dados.
+
+O diálogo administrativo de revisão foi aberto sem submeter formulários. As superfícies, tipografia, campos de taxa, seletor de logo, controles de sincronização e botões de ação permaneceram legíveis sobre o fundo escuro.
