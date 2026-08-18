@@ -212,6 +212,36 @@
   --sidebar-ring: oklch(0.45 0.075 183);
 }
 
+.dark {
+  --primary: oklch(0.68 0.11 174);
+  --primary-foreground: oklch(0.18 0.03 190);
+  --sidebar-primary: oklch(0.68 0.11 174);
+  --sidebar-primary-foreground: oklch(0.18 0.03 190);
+  --background: oklch(0.16 0.018 197);
+  --foreground: oklch(0.93 0.018 95);
+  --card: oklch(0.205 0.02 195);
+  --card-foreground: oklch(0.93 0.018 95);
+  --popover: oklch(0.225 0.02 195);
+  --popover-foreground: oklch(0.93 0.018 95);
+  --secondary: oklch(0.255 0.022 194);
+  --secondary-foreground: oklch(0.86 0.018 95);
+  --muted: oklch(0.265 0.02 194);
+  --muted-foreground: oklch(0.74 0.024 175);
+  --accent: oklch(0.30 0.045 180);
+  --accent-foreground: oklch(0.95 0.018 95);
+  --destructive: oklch(0.70 0.17 28);
+  --destructive-foreground: oklch(0.18 0.018 195);
+  --border: oklch(0.40 0.025 192 / 75%);
+  --input: oklch(0.36 0.024 192 / 85%);
+  --ring: oklch(0.68 0.11 174);
+  --sidebar: oklch(0.205 0.02 195);
+  --sidebar-foreground: oklch(0.93 0.018 95);
+  --sidebar-accent: oklch(0.30 0.045 180);
+  --sidebar-accent-foreground: oklch(0.95 0.018 95);
+  --sidebar-border: oklch(0.40 0.025 192 / 75%);
+  --sidebar-ring: oklch(0.68 0.11 174);
+}
+
 @layer base {
   body {
     font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
@@ -219,12 +249,22 @@
       radial-gradient(circle at 90% -10%, oklch(0.85 0.07 173 / 45%), transparent 30rem),
       radial-gradient(circle at -5% 60%, oklch(0.92 0.025 75 / 80%), transparent 28rem);
   }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at 90% -10%, oklch(0.31 0.07 174 / 35%), transparent 30rem),
+      radial-gradient(circle at -5% 60%, oklch(0.22 0.035 195 / 78%), transparent 28rem);
+  }
 }
 
 @layer components {
   .finance-grid {
     background-image: linear-gradient(oklch(0.23 0.028 196 / 4%) 1px, transparent 1px), linear-gradient(90deg, oklch(0.23 0.028 196 / 4%) 1px, transparent 1px);
     background-size: 32px 32px;
+  }
+
+  .dark .finance-grid {
+    background-image: linear-gradient(oklch(0.82 0.04 174 / 7%) 1px, transparent 1px), linear-gradient(90deg, oklch(0.82 0.04 174 / 7%) 1px, transparent 1px);
   }
 
   .micro-label {

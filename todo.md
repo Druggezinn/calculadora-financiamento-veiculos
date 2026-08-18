@@ -40,3 +40,11 @@
 - [x] Elaborar um guia passo a passo de instalação em VPS Ubuntu, incluindo domínio, banco de dados, variáveis seguras, HTTPS, systemd e provisionamento do administrador.
 - [x] Corrigir o guia para usar os comandos de migração executáveis pelo projeto e validar a sintaxe crítica antes da entrega.
 - [x] Validar o subcomando de migração do Drizzle e revisar os comandos de migração, backup e build documentados no guia de VPS.
+- [x] Adicionar alternador de modo escuro com rótulo acessível, preferência persistida e adaptação completa dos tokens visuais.
+- [x] Validar a leitura, o contraste e a responsividade do modo escuro em desktop e iPhone.
+- [x] Substituir cores hardcoded sensíveis ao tema por tokens semânticos e remover overrides frágeis de seletor por substring.
+- [x] Revisar os estados de formulário, comparativo, carregamento, erro, histórico e diálogo administrativo no modo escuro.
+- [x] Validar explicitamente a legibilidade do modo escuro em desktop e iPhone após a tokenização visual.
+- [x] Tokenizar as telas e componentes restantes com cores fixas relevantes ao aplicativo.
+- [ ] Validar no navegador os estados de carregamento, erro, vazio, comparativo, histórico e o painel administrativo no modo escuro.
+- [x] Repetir a revisão pós-tokenização em desktop e viewport de iPhone, registrando a legibilidade dos componentes principais.

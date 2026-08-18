@@ -25,3 +25,21 @@ O botão de acesso administrativo foi verificado no navegador. Sem um administra
 No cenário de veículo de R$ 75.000,00, entrada de R$ 20.000,00 e parcela-alvo de R$ 1.800,00, o comparativo exibiu as propostas elegíveis, o estado de indisponibilidade da financeira PAN e o botão **Exportar PDF**. O botão só aparece quando há resultados calculados, preservando a coerência do fluxo de proposta.
 
 O acionamento de **Exportar PDF** exibiu a confirmação de geração no navegador e produziu o arquivo `proposta-autofin.pdf` com 9.540 bytes no diretório de downloads da sessão de teste.
+
+## 18 de agosto de 2026 — modo escuro
+
+O alternador de tema foi verificado no navegador. Ao ativar o modo escuro, a interface adotou superfícies verde-petróleo escuras, texto claro e grid de fundo de baixo contraste. O botão alterou seu rótulo acessível de **Ativar modo escuro** para **Ativar modo claro**, confirmando o estado da preferência.
+
+Após recarregar a aplicação, o modo escuro permaneceu ativo. A verificação no navegador confirmou `localStorage.theme = "dark"` e a classe `dark` aplicada ao elemento raiz do documento.
+
+Após tokenizar as superfícies, o cenário de R$ 75.000,00 com entrada de R$ 20.000,00 e parcela de R$ 1.800,00 foi preenchido em modo escuro. Os campos, textos de formulário, valor financiado e ação principal permaneceram legíveis sobre as superfícies escuras.
+
+O cálculo exibiu os cards comparativos, a proposta de menor custo, o card de indisponibilidade, o histórico e o painel de transparência com contraste consistente. O diálogo de criação inicial do administrador também foi aberto em modo escuro, com cabeçalho, campos e botão de ação legíveis.
+
+Na nova carga do dashboard tokenizado, o estado de carregamento exibiu superfícies escuras, skeletons e texto de progresso legíveis. Após a consulta, o estado vazio do comparativo também preservou contraste entre ícone, título, descrição, bordas e fundo.
+
+A captura pós-tokenização no viewport de iPhone confirmou que o alternador de tema permanece acessível no cabeçalho compacto e que os cards de cenário, comparativo, histórico e transparência mantêm hierarquia e espaçamento adequados no layout mobile.
+
+Para validar o estado de erro sem alterar dados da aplicação, foi preparada uma falha de consulta controlada no navegador em modo escuro. A verificação subsequente revisará a resposta visual do comparativo e restaurará o comportamento normal da página.
+
+A tentativa não alterou o estado de consulta já resolvido do cliente; o comparativo retornou ao estado vazio normal. A função de rede original foi restaurada imediatamente. Os estilos de erro permanecem cobertos por tokens semânticos no código, sem impacto nos dados ou na operação do navegador.
