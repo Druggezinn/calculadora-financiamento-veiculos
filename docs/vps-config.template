@@ -1,0 +1,7 @@
+# Copie estas linhas para a configuração de ambiente da VPS e preencha localmente.
+# Não registre este arquivo com valores reais no repositório.
+
+NODE_ENV=production
+DATABASE_URL=mysql://USUARIO:SENHA@HOST:3306/BANCO
+JWT_SECRET=gere-um-segredo-longo-e-aleatorio
+LOCAL_ADMIN_SETUP_TOKEN=gere-um-token-longo-e-aleatorio

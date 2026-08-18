@@ -4,7 +4,7 @@ Esta aplicação é uma aplicação Node.js com React, Express, tRPC e MySQL/TiD
 
 ## Preparação do servidor
 
-No Ubuntu/Debian, instale Node.js 22 LTS, `pnpm`, Nginx e um cliente MySQL. Clone o repositório exportado e execute `pnpm install --frozen-lockfile` seguido de `pnpm build`. Configure um banco MySQL 8 ou compatível e aplique a migração `drizzle/0001_quick_darkstar.sql` antes de iniciar a aplicação.
+No Ubuntu/Debian, instale Node.js 22 LTS, `pnpm`, Nginx e um cliente MySQL. Clone o repositório exportado e execute `pnpm install --frozen-lockfile` seguido de `pnpm build`. Configure um banco MySQL 8 ou compatível e aplique **todas** as migrações em `drizzle/` antes de iniciar a aplicação.
 
 | Variável | Finalidade | Recomendação de produção |
 | --- | --- | --- |
@@ -12,9 +12,15 @@ No Ubuntu/Debian, instale Node.js 22 LTS, `pnpm`, Nginx e um cliente MySQL. Clon
 | `PORT` | Porta local exposta ao Nginx | Escolha uma porta interna livre. |
 | `DATABASE_URL` | Conexão MySQL/TiDB | Usuário com privilégio apenas no banco da aplicação. |
 | `JWT_SECRET` | Assinatura de sessão | Valor aleatório longo e exclusivo. |
-| `VITE_APP_ID`, `OAUTH_SERVER_URL`, `VITE_OAUTH_PORTAL_URL` | Autenticação do template | Configure um provedor OAuth compatível ou substitua a camada de autenticação antes da exposição pública. |
+| `LOCAL_ADMIN_SETUP_TOKEN` | Libera a criação única do primeiro administrador | Token aleatório com pelo menos 32 caracteres; mantenha apenas em arquivo com permissão `600`. |
 
-> **Atenção sobre o painel de taxas:** a versão atual usa o controle administrativo por identidade de proprietário provido no template. Em uma VPS externa, configure um provedor OAuth próprio ou adapte esse controle a uma autenticação administrativa do seu ambiente antes de expor o painel de edição na internet. A calculadora pública e a base de taxas permanecem operacionais sem login.
+> **Atenção sobre o painel de taxas:** o acesso administrativo usa um usuário local com senha em hash **Argon2id**, sessão opaca armazenada em cookie `HttpOnly`/`Secure`, expiração de oito horas e bloqueio temporário após tentativas falhas. A senha e seu hash não devem aparecer em arquivos de configuração, logs ou no repositório.
+
+## Provisionamento do administrador local
+
+Use `docs/vps-config.template` como referência e crie um arquivo privado, por exemplo `/etc/autofin/autofin.config`. Defina `LOCAL_ADMIN_SETUP_TOKEN` com uma sequência longa e aleatória, execute `sudo chown autofin:autofin /etc/autofin/autofin.config` e `sudo chmod 600 /etc/autofin/autofin.config`.
+
+Depois que o domínio HTTPS estiver ativo, abra a aplicação e selecione **Acesso do dono**. No primeiro uso, informe um identificador, uma senha de pelo menos 12 caracteres e o token privado. A aplicação cria o administrador com hash Argon2id; em seguida, remova `LOCAL_ADMIN_SETUP_TOKEN` do arquivo de configuração e reinicie o serviço. Dessa forma, o provisionamento inicial não pode ser repetido.
 
 ## Processo da aplicação
 
@@ -31,7 +37,7 @@ User=autofin
 WorkingDirectory=/srv/autofin
 Environment=NODE_ENV=production
 Environment=PORT=3000
-EnvironmentFile=/etc/autofin/autofin.env
+EnvironmentFile=/etc/autofin/autofin.config
 ExecStart=/usr/bin/node dist/index.js
 Restart=always
 RestartSec=5
@@ -58,6 +64,10 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
     }
 }
 ```
@@ -66,4 +76,8 @@ Emita o certificado com Certbot e habilite o redirecionamento HTTP→HTTPS. Apó
 
 ## Atualizações e operação
 
-Em cada atualização, faça `git pull`, `pnpm install --frozen-lockfile`, `pnpm build` e `sudo systemctl restart autofin`. Antes de qualquer atualização de taxas, registre a nova taxa mensal, a fonte e as datas de vigência no painel administrativo. As médias iniciais foram carregadas a partir do Banco Central e devem ser tratadas como parâmetros de referência, nunca como aprovação ou proposta contratual.
+Em cada atualização, faça `git pull`, `pnpm install --frozen-lockfile`, aplique migrações pendentes, execute `pnpm build` e `sudo systemctl restart autofin`. O botão **Atualizar taxas** consulta manualmente o serviço público do Banco Central, faz correspondência pelo CNPJ-base de cada financeira e registra a ação no histórico administrativo. Revise o resultado e a data de referência antes de usar uma simulação comercial. As médias devem ser tratadas como parâmetros de referência, nunca como aprovação ou proposta contratual.
+
+## Checklist de segurança operacional
+
+Mantenha o MySQL acessível somente pela rede privada ou por `127.0.0.1`, com um usuário específico da aplicação e privilégio apenas no banco AutoFin. Restrinja o firewall a SSH e HTTP/HTTPS, atualize o sistema operacional e dependências regularmente, proteja o SSH com chaves e copie backups cifrados para fora da VPS. Verifique periodicamente os registros do Nginx, do systemd e a tabela de auditoria administrativa.

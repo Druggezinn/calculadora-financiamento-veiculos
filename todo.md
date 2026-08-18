@@ -19,3 +19,21 @@
 - [x] Adicionar estado de carregamento dedicado na área comparativa enquanto as taxas são consultadas.
 - [x] Pré-cachear o app shell e os ícones no service worker, com fallback de navegação para uso offline básico.
 - [x] Verificar que os arquivos essenciais do app shell foram armazenados no cache da PWA após a primeira visita controlada.
+- [x] Definir e documentar o modelo de autenticação administrativa seguro para VPS, incluindo limites e requisitos de configuração externa.
+- [x] Persistir configuração de marca e logo, com alteração restrita a administrador e armazenamento seguro do arquivo.
+- [x] Criar uma trilha de auditoria para alterações administrativas de taxas, marca e sincronizações.
+- [x] Implementar botão de sincronização manual de taxas por fonte oficial, com revisão de correspondência, data de referência e registro do resultado.
+- [x] Implementar exportação de proposta em PDF com cenário, comparação, aviso de simulação e data de emissão.
+- [x] Reforçar a autorização das operações administrativas, validação de entrada e limites contra tentativas abusivas.
+- [x] Atualizar a interface com ações administrativas de logo, sincronização e exportação de proposta.
+- [x] Escrever testes para exportação, autorização e sincronização de taxas; validar o fluxo em navegador e atualizar o guia de VPS.
+- [x] Arquivar o adaptador de Google OAuth/OpenID Connect, substituído por autenticação local a pedido do proprietário.
+- [x] Arquivar a solicitação de segredos Google OAuth, não necessária após a mudança de autenticação.
+- [x] Criar usuários administrativos locais com identificador único, senha em hash Argon2id e função de administrador.
+- [x] Implementar login e logout locais com sessão revogável, cookie HttpOnly/Secure e expiração definida.
+- [x] Implementar limitação de tentativas de login e bloqueio temporário persistido no banco.
+- [x] Documentar o primeiro provisionamento do administrador sem registrar senha ou hash no repositório.
+- [x] Gerar token de provisionamento de alta entropia e criar arquivo de configuração externo ignorado pelo repositório.
+- [x] Incluir um modelo de configuração sem segredos em `docs/vps-config.template` para orientar a VPS.
+- [x] Adicionar teste automatizado da exportação em PDF, cobrindo cenário, comparativo, aviso de simulação e nome esperado.
+- [x] Adicionar testes da mutation `finance.syncRates` para bloqueio de não-admin, sincronização parcial por CNPJ e falha da fonte oficial.

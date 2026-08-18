@@ -4,8 +4,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
+import { saveProposalPdf } from "@/lib/proposalPdf";
 import {
   calculateFinancing,
   calculateInstallmentsForTargetPayment,
@@ -21,16 +21,20 @@ import {
   CircleDollarSign,
   Clock3,
   Database,
+  Download,
   Info,
   Landmark,
   Loader2,
   LockKeyhole,
+  LogIn,
+  LogOut,
   RefreshCw,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
+  Upload,
 } from "lucide-react";
-import { FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 type CalculationMode = "payment" | "term";
@@ -115,8 +119,10 @@ function CurrencyInput({
 }
 
 export default function Home() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout, refresh: refreshAuth } = useAuth();
   const ratesQuery = trpc.finance.listRates.useQuery();
+  const settingsQuery = trpc.settings.get.useQuery();
+  const authStatusQuery = trpc.auth.status.useQuery();
   const utils = trpc.useUtils();
   const updateRate = trpc.finance.updateRate.useMutation({
     onSuccess: () => {
@@ -124,6 +130,35 @@ export default function Home() {
       utils.finance.listRates.invalidate();
     },
     onError: error => toast.error(error.message || "Não foi possível atualizar a taxa."),
+  });
+  const syncRates = trpc.finance.syncRates.useMutation({
+    onSuccess: result => {
+      utils.finance.listRates.invalidate();
+      toast.success(`${result.recordsUpdated} taxa(s) atualizada(s) pela fonte oficial.`);
+      if (result.details.length) toast.info(result.details.join(" "));
+    },
+    onError: error => toast.error(error.message || "Não foi possível consultar a fonte oficial."),
+  });
+  const updateBrand = trpc.settings.updateBrand.useMutation({
+    onSuccess: () => {
+      utils.settings.get.invalidate();
+      toast.success("Marca atualizada.");
+    },
+    onError: error => toast.error(error.message || "Não foi possível atualizar a marca."),
+  });
+  const login = trpc.auth.login.useMutation({
+    onSuccess: async () => {
+      await refreshAuth();
+      toast.success("Acesso administrativo liberado.");
+    },
+    onError: error => toast.error(error.message || "Não foi possível entrar."),
+  });
+  const bootstrapAdmin = trpc.auth.bootstrapAdmin.useMutation({
+    onSuccess: async () => {
+      await authStatusQuery.refetch();
+      toast.success("Administrador criado. Agora entre com seu usuário e senha.");
+    },
+    onError: error => toast.error(error.message || "Não foi possível provisionar o administrador."),
   });
 
   const [vehicleValue, setVehicleValue] = useState(0);
@@ -135,10 +170,16 @@ export default function Home() {
   const [unavailableRates, setUnavailableRates] = useState<Rate[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<SessionItem[]>(loadSessionHistory);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [setupOpen, setSetupOpen] = useState(false);
+  const [logoDataUri, setLogoDataUri] = useState<string | null>(null);
+  const [brandName, setBrandName] = useState("");
 
   const principal = Math.max(vehicleValue - downPayment, 0);
   const activeRates = (ratesQuery.data ?? []) as Rate[];
   const calculationLabel = mode === "payment" ? "Parcela desejada" : "Prazo desejado";
+  const brand = settingsQuery.data;
+  const hasLocalAdmin = authStatusQuery.data?.hasAdmin ?? true;
 
   const lowestResult = useMemo(
     () => results.reduce<RateResult | null>((lowest, current) => {
@@ -233,16 +274,79 @@ export default function Home() {
     });
   }
 
+  function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    login.mutate({
+      username: String(formData.get("username") ?? ""),
+      password: String(formData.get("password") ?? ""),
+    });
+  }
+
+  function handleBootstrap(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    bootstrapAdmin.mutate({
+      username: String(formData.get("username") ?? ""),
+      password: String(formData.get("password") ?? ""),
+      setupToken: String(formData.get("setupToken") ?? ""),
+    });
+  }
+
+  function handleLogoFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!/image\/(png|jpeg|webp)/.test(file.type) || file.size > 1_000_000) {
+      toast.error("Envie um logo PNG, JPEG ou WebP de até 1 MB.");
+      event.target.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setLogoDataUri(String(reader.result));
+    reader.readAsDataURL(file);
+  }
+
+  function handleBrandUpdate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    updateBrand.mutate({
+      brandName: String(formData.get("brandName") ?? brand?.brandName ?? "AutoFin"),
+      logoDataUri,
+    });
+  }
+
+  async function exportProposalPdf() {
+    if (!results.length) {
+      toast.error("Calcule ao menos uma proposta antes de exportar.");
+      return;
+    }
+    try {
+      await saveProposalPdf({
+        title: brand?.brandName ?? "AutoFin",
+        vehicleValue,
+        downPayment,
+        principal,
+        mode,
+        targetPayment,
+        installments,
+        results: results.map(result => ({ institutionName: result.rate.displayName, calculation: result.calculation })),
+      });
+      toast.success("Proposta em PDF gerada.");
+    } catch {
+      toast.error("Não foi possível gerar o PDF da proposta.");
+    }
+  }
+
   return (
     <div className="min-h-screen finance-grid">
       <header className="border-b border-border/75 bg-background/75 backdrop-blur-xl">
         <div className="container flex h-18 items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-2xl bg-[#123b3a] text-[#e8d7a0] shadow-[0_10px_25px_rgba(18,59,58,0.16)]">
-              <Calculator className="size-5" strokeWidth={2.1} />
+            <div className="grid size-10 place-items-center overflow-hidden rounded-2xl bg-[#123b3a] text-[#e8d7a0] shadow-[0_10px_25px_rgba(18,59,58,0.16)]">
+              {brand?.logoUrl ? <img src={brand.logoUrl} alt={`Logo ${brand.brandName}`} className="size-full object-cover" /> : <Calculator className="size-5" strokeWidth={2.1} />}
             </div>
             <div>
-              <p className="text-sm font-extrabold tracking-tight text-[#123b3a]">AutoFin</p>
+              <p className="text-sm font-extrabold tracking-tight text-[#123b3a]">{brand?.brandName ?? "AutoFin"}</p>
               <p className="micro-label text-[0.56rem] text-muted-foreground">simulador de margem</p>
             </div>
           </div>
@@ -263,7 +367,15 @@ export default function Home() {
                     <DialogTitle className="text-xl tracking-tight">Tabela administrativa de taxas</DialogTitle>
                     <DialogDescription>Atualize a referência mensal e a vigência. As mudanças serão usadas nos próximos cálculos.</DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4 p-6">
+                  <div className="space-y-5 p-6">
+                    <section className="rounded-2xl border border-[#d7e7df] bg-[#f3faf7] p-4">
+                      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div><p className="text-sm font-extrabold text-[#173a3a]">Sincronizar referência oficial</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Consulta manual à base pública do Banco Central; valores ficam registrados na auditoria.</p></div><Button type="button" onClick={() => syncRates.mutate()} disabled={syncRates.isPending} className="rounded-xl bg-[#236c5a] text-xs font-bold text-white hover:bg-[#175548]">{syncRates.isPending ? <Loader2 className="mr-2 size-3.5 animate-spin" /> : <RefreshCw className="mr-2 size-3.5" />}Atualizar taxas</Button></div>
+                    </section>
+                    <form onSubmit={handleBrandUpdate} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+                      <div className="mb-4 flex items-center justify-between gap-3"><div><p className="font-bold text-[#173a3a]">Marca e logo</p><p className="mt-1 text-xs text-muted-foreground">A imagem fica armazenada com acesso administrativo.</p></div>{logoDataUri || brand?.logoUrl ? <img src={logoDataUri ?? brand?.logoUrl ?? ""} alt="Prévia do logo" className="size-10 rounded-xl object-cover" /> : <Upload className="size-4 text-[#397b6c]" />}</div>
+                      <div className="grid gap-3 sm:grid-cols-[1fr_auto]"><div className="space-y-1.5"><Label className="text-xs">Nome da marca</Label><Input name="brandName" defaultValue={brand?.brandName ?? "AutoFin"} onChange={event => setBrandName(event.target.value)} /></div><div className="space-y-1.5"><Label className="text-xs">Logo (até 1 MB)</Label><Input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleLogoFile} className="max-w-xs cursor-pointer" /></div></div>
+                      <Button type="submit" size="sm" disabled={updateBrand.isPending || !brandName && !brand?.brandName} className="mt-3 rounded-xl bg-[#123b3a] text-xs font-bold text-[#fffaf0] hover:bg-[#0c302f]">{updateBrand.isPending ? <Loader2 className="mr-2 size-3.5 animate-spin" /> : "Salvar marca"}</Button>
+                    </form>
                     {activeRates.map(rate => (
                       <form key={rate.id} onSubmit={event => handleRateUpdate(event, rate)} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
                         <div className="mb-4 flex items-start justify-between gap-3">
@@ -288,9 +400,10 @@ export default function Home() {
                 </DialogContent>
               </Dialog>
             ) : (
-              <Button variant="ghost" size="sm" onClick={() => startLogin()} className="rounded-xl text-xs font-bold text-muted-foreground hover:text-[#123b3a]">
-                <LockKeyhole className="mr-2 size-3.5" />Acesso do dono
-              </Button>
+              <Dialog open={hasLocalAdmin ? loginOpen : setupOpen} onOpenChange={open => hasLocalAdmin ? setLoginOpen(open) : setSetupOpen(open)}>
+                <DialogTrigger asChild><Button variant="ghost" size="sm" onClick={() => hasLocalAdmin ? setLoginOpen(true) : setSetupOpen(true)} className="rounded-xl text-xs font-bold text-muted-foreground hover:text-[#123b3a]"><LockKeyhole className="mr-2 size-3.5" />Acesso do dono</Button></DialogTrigger>
+                <DialogContent className="max-w-md rounded-3xl"><DialogHeader><DialogTitle>{hasLocalAdmin ? "Acesso administrativo" : "Criar administrador inicial"}</DialogTitle><DialogDescription>{hasLocalAdmin ? "Use o usuário e a senha configurados na VPS." : "Use o token privado gerado na configuração da VPS para criar o administrador."}</DialogDescription></DialogHeader>{hasLocalAdmin ? <form onSubmit={handleLogin} className="space-y-4"><div className="space-y-2"><Label>Usuário</Label><Input name="username" autoComplete="username" required /></div><div className="space-y-2"><Label>Senha</Label><Input name="password" type="password" autoComplete="current-password" minLength={12} required /></div><Button type="submit" disabled={login.isPending} className="w-full rounded-xl bg-[#123b3a] text-[#fffaf0]">{login.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <LogIn className="mr-2 size-4" />}Entrar</Button></form> : <form onSubmit={handleBootstrap} className="space-y-4"><div className="space-y-2"><Label>Usuário administrador</Label><Input name="username" autoComplete="username" minLength={3} required /></div><div className="space-y-2"><Label>Senha forte</Label><Input name="password" type="password" autoComplete="new-password" minLength={12} required /></div><div className="space-y-2"><Label>Token de provisionamento</Label><Input name="setupToken" type="password" autoComplete="one-time-code" minLength={24} required /></div><Button type="submit" disabled={bootstrapAdmin.isPending} className="w-full rounded-xl bg-[#123b3a] text-[#fffaf0]">{bootstrapAdmin.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <ShieldCheck className="mr-2 size-4" />}Criar administrador</Button></form>}</DialogContent>
+              </Dialog>
             )}
           </div>
         </div>
@@ -359,7 +472,7 @@ export default function Home() {
                 <p className="micro-label text-[0.62rem] font-bold text-[#4c8277]">03 · comparativo</p>
                 <h2 className="mt-1 text-lg font-extrabold tracking-tight text-[#173a3a]">Propostas por financeira</h2>
               </div>
-              {results.length > 0 && lowestResult && <div className="rounded-2xl bg-[#e9f5f0] px-3 py-2 text-right"><p className="micro-label text-[0.56rem] font-bold text-[#438374]">menor custo total</p><p className="mt-0.5 text-sm font-extrabold text-[#173a3a]">{lowestResult.rate.displayName}</p></div>}
+              <div className="flex items-center gap-2">{results.length > 0 && <Button variant="outline" size="sm" onClick={exportProposalPdf} className="rounded-xl border-[#bcd7cf] bg-card text-xs font-bold text-[#245955]"><Download className="mr-2 size-3.5" />Exportar PDF</Button>}{results.length > 0 && lowestResult && <div className="rounded-2xl bg-[#e9f5f0] px-3 py-2 text-right"><p className="micro-label text-[0.56rem] font-bold text-[#438374]">menor custo total</p><p className="mt-0.5 text-sm font-extrabold text-[#173a3a]">{lowestResult.rate.displayName}</p></div>}</div>
             </div>
 
             <div className="p-4 sm:p-6">
@@ -392,7 +505,7 @@ export default function Home() {
 
         <section className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="rounded-3xl border border-border/80 bg-card/80 p-5 shadow-sm"><div className="flex items-center justify-between"><div><p className="micro-label text-[0.6rem] font-bold text-[#4c8277]">sessão atual</p><h3 className="mt-1 text-sm font-extrabold text-[#173a3a]">Histórico recente</h3></div><Clock3 className="size-4 text-[#579383]" /></div>{history.length === 0 ? <p className="mt-4 text-xs text-muted-foreground">Os próximos cálculos serão preservados aqui somente durante esta sessão.</p> : <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{history.map(item => <div key={item.id} className="rounded-xl bg-[#f2f5f0] px-3 py-2.5"><div className="flex items-center justify-between gap-2"><p className="text-xs font-bold text-[#234544]">{formatCurrency(item.vehicleValue)}</p><span className="rounded-md bg-card px-1.5 py-0.5 text-[0.58rem] font-bold text-[#3b7e6d]">{item.leadingInstitution}</span></div><p className="mt-1 text-[0.65rem] text-muted-foreground">{item.leadingInstallments}x de {formatCurrency(item.leadingPayment)} · total {formatCurrency(item.leadingTotalPaid)}</p></div>)}</div>}</div>
-          <div className="rounded-3xl border border-[#ceddd7] bg-[#123b3a] p-5 text-[#fffaf0] shadow-[0_16px_30px_rgba(18,59,58,0.14)]"><div className="flex items-center gap-2 text-[#d9c57e]"><Info className="size-4" /><span className="micro-label text-[0.58rem] font-bold">transparência</span></div><p className="mt-3 text-sm font-bold leading-5">CET estimado, não oferta bancária.</p><p className="mt-2 text-xs leading-5 text-[#d7e4df]">A taxa é uma média configurada. O resultado não inclui serviços ou tarifas que não tenham sido cadastrados pelo administrador.</p></div>
+          <div className="rounded-3xl border border-[#ceddd7] bg-[#123b3a] p-5 text-[#fffaf0] shadow-[0_16px_30px_rgba(18,59,58,0.14)]"><div className="flex items-center gap-2 text-[#d9c57e]"><Info className="size-4" /><span className="micro-label text-[0.58rem] font-bold">transparência</span></div><p className="mt-3 text-sm font-bold leading-5">CET estimado, não oferta bancária.</p><p className="mt-2 text-xs leading-5 text-[#d7e4df]">A taxa é uma média configurada. O resultado não inclui serviços ou tarifas que não tenham sido cadastrados pelo administrador.</p>{user?.role === "admin" && <Button variant="ghost" size="sm" onClick={() => logout()} className="mt-3 h-auto p-0 text-xs font-bold text-[#d9c57e] hover:bg-transparent hover:text-[#fffaf0]"><LogOut className="mr-2 size-3.5" />Sair do painel</Button>}</div>
         </section>
       </main>
     </div>

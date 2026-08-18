@@ -15,3 +15,13 @@ O cálculo por 48 parcelas retornou as seis financeiras configuradas. Santander 
 Após evoluir o service worker para a versão de app shell, o navegador recebeu a solicitação de atualização sem registrar worker pendente ou em instalação. A verificação de chaves de cache será feita após a navegação de recarga controlada.
 
 Após a recarga controlada, o cache `autofin-shell-v2` continha os três ícones PWA e os recursos do app shell carregados pelo Vite, incluindo o módulo principal, a folha de estilos e os módulos da tela de cálculo. O service worker também mantém fallback de navegação para a raiz quando a rede não está disponível.
+
+## 18 de agosto de 2026 — provisionamento administrativo
+
+O botão de acesso administrativo foi verificado no navegador. Sem um administrador local provisionado, a aplicação abriu o formulário de criação inicial com campos para usuário, senha forte e token privado de provisionamento. O diálogo foi fechado sem inserir credenciais de teste.
+
+## 18 de agosto de 2026 — proposta em PDF
+
+No cenário de veículo de R$ 75.000,00, entrada de R$ 20.000,00 e parcela-alvo de R$ 1.800,00, o comparativo exibiu as propostas elegíveis, o estado de indisponibilidade da financeira PAN e o botão **Exportar PDF**. O botão só aparece quando há resultados calculados, preservando a coerência do fluxo de proposta.
+
+O acionamento de **Exportar PDF** exibiu a confirmação de geração no navegador e produziu o arquivo `proposta-autofin.pdf` com 9.540 bytes no diretório de downloads da sessão de teste.

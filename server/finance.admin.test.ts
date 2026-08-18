@@ -5,11 +5,13 @@ import type { TrpcContext } from "./_core/context";
 const mocks = vi.hoisted(() => ({
   listRates: vi.fn(),
   updateRate: vi.fn(),
+  createAuditLog: vi.fn(),
 }));
 
 vi.mock("./db", () => ({
   listActiveFinancialInstitutions: mocks.listRates,
   updateFinancialInstitutionRate: mocks.updateRate,
+  createAdminAuditLog: mocks.createAuditLog,
 }));
 
 import { appRouter } from "./routers";
@@ -19,6 +21,7 @@ const sampleRate: FinancialInstitution = {
   slug: "itau",
   displayName: "Itaú",
   legalName: "ITAÚ UNIBANCO HOLDING S.A.",
+  bcbCnpj8: "60872504",
   monthlyRate: 2.05,
   annualRate: 27.64,
   sourceUrl: null,
@@ -55,6 +58,7 @@ describe("finance routes", () => {
   beforeEach(() => {
     mocks.listRates.mockReset();
     mocks.updateRate.mockReset();
+    mocks.createAuditLog.mockReset();
     mocks.listRates.mockResolvedValue([sampleRate]);
     mocks.updateRate.mockResolvedValue(sampleRate);
   });
