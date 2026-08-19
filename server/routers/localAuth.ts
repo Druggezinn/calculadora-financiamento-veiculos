@@ -5,6 +5,7 @@ import {
   hashPassword,
   hashSessionToken,
   isStrongPassword,
+  isValidUsername,
   LOCAL_LOCK_DURATION_MS,
   LOCAL_MAX_LOGIN_FAILURES,
   LOCAL_SESSION_COOKIE,
@@ -18,9 +19,11 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 const credentialsSchema = z.object({
-  username: z.string().min(3).max(64),
+  username: z.string().trim().min(3).max(64).refine(isValidUsername, {
+    message: "Use letras minúsculas, números, ponto, hífen ou sublinhado no usuário.",
+  }),
   password: z.string().min(12).max(128),
-});
+}).strict();
 
 function isSecureRequest(protocol: string | undefined) {
   return protocol === "https" || process.env.NODE_ENV === "production";

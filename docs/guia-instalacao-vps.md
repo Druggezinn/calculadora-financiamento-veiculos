@@ -60,20 +60,24 @@ Os dois últimos comandos devem confirmar Node.js na série `22` e `pnpm` dispon
 
 O Ubuntu fornece `mysql-server` com administração local por `sudo mysql`; é recomendado criar uma conta própria e limitada para a aplicação em vez de usar `root`. [3]
 
-Gere uma senha hexadecimal sem caracteres que precisem ser escapados em uma URL. Guarde o valor exibido em um gerenciador de senhas até copiá-lo para a configuração privada no passo 5.
+Gere senhas hexadecimais sem caracteres que precisem ser escapados em uma URL. A conta de execução terá somente os privilégios de aplicação; a conta de migração será usada apenas nos comandos de atualização. Guarde ambos os valores em um gerenciador de senhas até copiá-los para a configuração privada no passo 5.
 
 ```bash
 DB_PASSWORD=$(openssl rand -hex 24)
-echo "Senha do banco: ${DB_PASSWORD}"
+MIGRATION_DB_PASSWORD=$(openssl rand -hex 24)
+echo "Senha de execução: ${DB_PASSWORD}"
+echo "Senha de migração: ${MIGRATION_DB_PASSWORD}"
 ```
 
-Crie o banco e o usuário local. O privilégio abaixo cobre as migrações e a operação da AutoFin **somente** dentro do banco `autofin`.
+Crie o banco e as contas locais. A AutoFin em execução precisa apenas de leitura e escrita; somente a conta de migração recebe privilégios de DDL dentro do banco `autofin`.
 
 ```bash
 sudo mysql <<SQL
 CREATE DATABASE autofin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'autofin_app'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON autofin.* TO 'autofin_app'@'localhost';
+CREATE USER 'autofin_migrate'@'localhost' IDENTIFIED BY '${MIGRATION_DB_PASSWORD}';
+GRANT SELECT, INSERT, UPDATE, DELETE ON autofin.* TO 'autofin_app'@'localhost';
+GRANT ALL PRIVILEGES ON autofin.* TO 'autofin_migrate'@'localhost';
 FLUSH PRIVILEGES;
 SQL
 ```
@@ -110,12 +114,13 @@ sudo tee /etc/autofin/autofin.config > /dev/null <<EOF
 NODE_ENV=production
 PORT=3000
 DATABASE_URL=mysql://autofin_app:${DB_PASSWORD}@127.0.0.1:3306/autofin
+MIGRATION_DATABASE_URL=mysql://autofin_migrate:${MIGRATION_DB_PASSWORD}@127.0.0.1:3306/autofin
 JWT_SECRET=${JWT_SECRET}
 LOCAL_ADMIN_SETUP_TOKEN=${SETUP_TOKEN}
 EOF
 sudo chown autofin:autofin /etc/autofin/autofin.config
 sudo chmod 600 /etc/autofin/autofin.config
-sudo cat /etc/autofin/autofin.config
+sudo stat -c '%A %U:%G %n' /etc/autofin/autofin.config
 ```
 
 Após conferir o arquivo, **apague o histórico do terminal** ou feche a sessão, pois os comandos acima contêm segredos. O modelo sem segredos está em `docs/vps-config.template`; ele é a referência para futuras configurações, não o arquivo operacional.
@@ -126,7 +131,7 @@ Carregue as variáveis só para a execução do comando de migração. Em seguid
 
 ```bash
 cd /srv/autofin
-sudo -u autofin bash -c 'set -a; source /etc/autofin/autofin.config; set +a; pnpm exec drizzle-kit migrate'
+sudo -u autofin bash -c 'set -a; source /etc/autofin/autofin.config; set +a; DATABASE_URL="$MIGRATION_DATABASE_URL" pnpm exec drizzle-kit migrate'
 sudo -u autofin pnpm build
 ```
 
@@ -151,10 +156,17 @@ EnvironmentFile=/etc/autofin/autofin.config
 ExecStart=/usr/bin/node dist/index.js
 Restart=always
 RestartSec=5
+UMask=0077
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
 ProtectHome=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+LockPersonality=true
 
 [Install]
 WantedBy=multi-user.target
@@ -197,6 +209,7 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
     }
 }
 NGINX
@@ -226,7 +239,8 @@ add_header X-Content-Type-Options "nosniff" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 add_header X-Frame-Options "DENY" always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-add_header Strict-Transport-Security "max-age=31536000" always;
+add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
+add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'" always;
 ```
 
 Valide e recarregue o Nginx após a alteração.
@@ -285,7 +299,7 @@ Para atualizar o código:
 cd /srv/autofin
 sudo -u autofin git pull
 sudo -u autofin pnpm install --frozen-lockfile
-sudo -u autofin bash -c 'set -a; source /etc/autofin/autofin.config; set +a; pnpm exec drizzle-kit migrate'
+sudo -u autofin bash -c 'set -a; source /etc/autofin/autofin.config; set +a; DATABASE_URL="$MIGRATION_DATABASE_URL" pnpm exec drizzle-kit migrate'
 sudo -u autofin pnpm build
 sudo systemctl restart autofin
 sudo systemctl status autofin --no-pager

@@ -4,6 +4,7 @@ import {
   hashPassword,
   hashSessionToken,
   isStrongPassword,
+  isValidUsername,
   normalizeUsername,
   verifyPassword,
 } from "./localAuth";
@@ -20,6 +21,9 @@ describe("autenticação local", () => {
 
   it("normaliza o identificador e exige senha com comprimento mínimo", () => {
     expect(normalizeUsername("  Administrador  ")).toBe("administrador");
+    expect(isValidUsername("administrador.01")).toBe(true);
+    expect(isValidUsername("admin espaço")).toBe(false);
+    expect(isValidUsername("__admin")).toBe(false);
     expect(isStrongPassword("curta")).toBe(false);
     expect(isStrongPassword("senha-com-12-ou-mais")).toBe(true);
   });

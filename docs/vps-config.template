@@ -2,6 +2,9 @@
 # Não registre este arquivo com valores reais no repositório.
 
 NODE_ENV=production
-DATABASE_URL=mysql://USUARIO:SENHA@HOST:3306/BANCO
+# Conta de execução: somente SELECT, INSERT, UPDATE e DELETE.
+DATABASE_URL=mysql://USUARIO_APP:SENHA_APP@127.0.0.1:3306/BANCO
+# Conta usada apenas durante migrações; não é usada pelo serviço em execução.
+MIGRATION_DATABASE_URL=mysql://USUARIO_MIGRATE:SENHA_MIGRATE@127.0.0.1:3306/BANCO
 JWT_SECRET=gere-um-segredo-longo-e-aleatorio
 LOCAL_ADMIN_SETUP_TOKEN=gere-um-token-longo-e-aleatorio

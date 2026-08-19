@@ -49,3 +49,4 @@
 - [x] Validar no navegador os estados de carregamento, erro, vazio, comparativo, histórico e o painel administrativo no modo escuro.
 - [x] Repetir a revisão pós-tokenização em desktop e viewport de iPhone, registrando a legibilidade dos componentes principais.
 - [x] Detectar a preferência de tema do sistema na primeira visita, mantendo a escolha manual persistida como prioridade.
+- [x] Revisar autenticação, sessões, autorização, validação de entradas, dependências e configuração de segurança para implantação em VPS.

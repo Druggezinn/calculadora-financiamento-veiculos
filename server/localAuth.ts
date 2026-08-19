@@ -14,8 +14,14 @@ const passwordOptions = {
   outputType: "encoded" as const,
 };
 
+const usernamePattern = /^[a-z0-9][a-z0-9._-]{2,63}$/;
+
 export function normalizeUsername(value: string) {
   return value.trim().toLowerCase();
+}
+
+export function isValidUsername(value: string) {
+  return usernamePattern.test(normalizeUsername(value));
 }
 
 export function isStrongPassword(value: string) {
@@ -31,7 +37,11 @@ export async function hashPassword(password: string) {
 }
 
 export async function verifyPassword(password: string, passwordHash: string) {
-  return argon2Verify({ password, hash: passwordHash });
+  try {
+    return await argon2Verify({ password, hash: passwordHash });
+  } catch {
+    return false;
+  }
 }
 
 export function generateSessionToken() {

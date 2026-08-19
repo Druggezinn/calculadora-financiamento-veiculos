@@ -7,6 +7,7 @@ import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
+import { applySecurityHeaders, requireJsonForApiMutations } from "../security";
 import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -31,14 +32,17 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  app.disable("x-powered-by");
+  app.set("trust proxy", "loopback");
+  app.use(applySecurityHeaders);
+  // O único upload administrativo é limitado a 1 MB; 2 MB comporta seu Data URI e metadados.
+  app.use(express.json({ limit: "2mb", strict: true, type: ["application/json", "application/*+json"] }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",
+    requireJsonForApiMutations,
     createExpressMiddleware({
       router: appRouter,
       createContext,
@@ -58,7 +62,8 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  server.listen(port, () => {
+  const host = process.env.NODE_ENV === "production" ? "127.0.0.1" : "0.0.0.0";
+  server.listen(port, host, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
 }
