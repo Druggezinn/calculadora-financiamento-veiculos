@@ -51,6 +51,23 @@ pnpm install --frozen-lockfile
 
 Se o repositório já foi enviado pelo **File Manager** ou SFTP, use o diretório existente em vez de clonar. O projeto inclui `app.js`, que importa `dist/index.js`; esse nome é importante porque o Passenger procura `app.js` por padrão. [2]
 
+### Instalação automática
+
+Depois de copiar o projeto, a forma mais rápida é executar o instalador interativo abaixo. Ele usa a UAPI da própria conta para criar banco, usuário e privilégios, gera segredos locais, aplica migrações e cria o build. Execute-o **somente em uma conta cPanel nova**, pois ele interrompe a instalação se não conseguir identificar de forma única os recursos MySQL criados.
+
+```bash
+cd ~/autofin
+bash scripts/install-cpanel-whm.sh
+```
+
+O script pede apenas os sufixos do banco e do usuário, gera senhas hexadecimais automaticamente e grava as variáveis em `~/.config/autofin/autofin.env` com permissão `600`. Depois da execução, siga diretamente para a etapa de registro no **Application Manager**. A UAPI oficial suporta criação de banco, usuário e atribuição de permissões para a conta cPanel. [4] [5]
+
+Antes de enviar o projeto à VPS, você pode validar o fluxo isolado do instalador na cópia local do repositório:
+
+```bash
+pnpm run test:installer-cpanel
+```
+
 ## 4. Execute a migração inicial e gere o build
 
 Crie um arquivo temporário privado para a migração. Troque todos os valores entre `<...>` pelos **nomes completos** exibidos no cPanel, incluindo o prefixo da conta.
@@ -85,7 +102,7 @@ No cPanel, abra **Software → Application Manager → Register Application** e 
 | Application Path | `autofin` |
 | Deployment Environment | `Production` |
 
-Na seção **Environment Variables**, inclua estas quatro variáveis:
+Se você usou o instalador, não é necessário repetir segredos nesta tela: o `app.js` carrega `~/.config/autofin/autofin.env` quando não recebe `DATABASE_URL` do Passenger. Para instalação manual, inclua as quatro variáveis abaixo na seção **Environment Variables**:
 
 | Nome | Valor |
 | --- | --- |
@@ -156,3 +173,7 @@ O cálculo, o painel local, o PDF e a sincronização de taxas podem operar ness
 [2] [cPanel — How to Install a Node.js Application](https://docs.cpanel.net/knowledge-base/web-services/how-to-install-a-node.js-application/)
 
 [3] [cPanel — MySQL Databases](https://docs.cpanel.net/cpanel/databases/mysql-databases/)
+
+[4] [cPanel UAPI — criar banco MySQL](https://api.docs.cpanel.net/specifications/cpanel.openapi/database-management/mysql-create_database)
+
+[5] [cPanel UAPI — definir privilégios MySQL](https://api.docs.cpanel.net/specifications/cpanel.openapi/user-management/mysql-set_privileges_on_database)

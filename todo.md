@@ -59,3 +59,4 @@
 - [x] Criar o script `~/bin/autofin-start` e iniciar a AutoFin com PM2 no CloudPanel.
 - [x] Arquivar a validação final de HTTPS, retomada do PM2 e provisionamento no CloudPanel, substituída pelo fluxo cPanel/WHM com Passenger e AutoSSL.
 - [x] Criar guia rápido de implantação da AutoFin em VPS com cPanel/WHM, incluindo Node.js, banco, variáveis privadas, HTTPS e reinicialização do processo.
+- [x] Criar e validar um script interativo de instalação da AutoFin em cPanel/WHM com Passenger e MySQL.
