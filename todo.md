@@ -51,3 +51,5 @@
 - [x] Detectar a preferência de tema do sistema na primeira visita, mantendo a escolha manual persistida como prioridade.
 - [x] Revisar autenticação, sessões, autorização, validação de entradas, dependências e configuração de segurança para implantação em VPS.
 - [x] Criar guia de implantação da AutoFin em VPS com CloudPanel, incluindo Node.js, banco, proxy, HTTPS, variáveis privadas e operação segura.
+- [x] Orientar passo a passo a criação das contas do banco e do arquivo privado de segredos no CloudPanel antes do primeiro build.
+- [x] Alinhar a configuração de overrides do pnpm ao lockfile para permitir `pnpm install --frozen-lockfile` na VPS.
