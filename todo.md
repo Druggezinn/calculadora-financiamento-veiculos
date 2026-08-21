@@ -61,3 +61,12 @@
 - [x] Criar guia rápido de implantação da AutoFin em VPS com cPanel/WHM, incluindo Node.js, banco, variáveis privadas, HTTPS e reinicialização do processo.
 - [x] Criar e validar um script interativo de instalação da AutoFin em cPanel/WHM com Passenger e MySQL.
 - [x] Adaptar o instalador e o guia cPanel/WHM para Node.js 20.20.2 disponível na VPS.
+- [x] Confirmar a versão efetiva do ambiente Node.js ativado no cPanel antes de executar o instalador.
+- [x] Arquivar a instalação de dependências no cPanel, substituída pela decisão de instalar a AutoFin em Amazon EC2 com Ubuntu.
+- [x] Recriar o ambiente da aplicação no cPanel com Node.js 20.20.2, substituindo o ambiente incompatível Node.js 10.24.1.
+- [x] Arquivar a instalação manual do projeto pelo cPanel, substituída pelo instalador dedicado para Amazon EC2 Ubuntu.
+- [x] Instalar o pnpm globalmente no usuário cPanel com `npm --global` antes de executar a instalação congelada do projeto.
+- [x] Arquivar a retomada do pnpm no cPanel após encerramento por recursos, substituída pela decisão de usar Amazon EC2 Ubuntu.
+- [x] Arquivar a correção do `node_modules` gerenciado pelo cPanel, não necessária no fluxo Amazon EC2 Ubuntu.
+- [x] Arquivar a ampliação de limites da conta cPanel, não necessária no fluxo Amazon EC2 Ubuntu.
+- [x] Criar e validar um script completo para instalar a AutoFin em Amazon EC2 com Ubuntu, Node.js, MySQL, Nginx, systemd, HTTPS e clone do repositório.

@@ -14,6 +14,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:installer-cpanel": "bash scripts/test-install-cpanel-whm.sh",
+    "test:installer-ec2": "bash scripts/test-install-ec2-ubuntu.sh",
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
   "dependencies": {
