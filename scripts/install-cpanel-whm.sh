@@ -30,7 +30,7 @@ Execute dentro da raiz do projeto, como o usuário da conta cPanel.
 O instalador cria um banco MySQL, usuário com privilégios de migração, arquivo privado
 de ambiente, aplica as migrações, gera o build e prepara o restart do Passenger.
 
-Pré-requisitos do WHM: ea-nodejs22, ea-apache24-mod-passenger,
+Pré-requisitos do WHM: ea-nodejs20, ea-apache24-mod-passenger,
 ea-apache24-mod_env e Application Manager habilitado para a conta.
 EOF
 }
@@ -45,13 +45,13 @@ fi
 command -v uapi >/dev/null 2>&1 || fail "UAPI não encontrada. Execute em uma conta cPanel com acesso a UAPI."
 command -v openssl >/dev/null 2>&1 || fail "openssl não está disponível."
 
-if [[ -x "/opt/cpanel/ea-nodejs22/bin/node" ]]; then
-  export PATH="/opt/cpanel/ea-nodejs22/bin:$HOME/.local/bin:$PATH"
+if [[ -x "/opt/cpanel/ea-nodejs20/bin/node" ]]; then
+  export PATH="/opt/cpanel/ea-nodejs20/bin:$HOME/.local/bin:$PATH"
 fi
 
-command -v node >/dev/null 2>&1 || fail "Node.js não encontrado. Habilite ea-nodejs22 no WHM."
+command -v node >/dev/null 2>&1 || fail "Node.js não encontrado. Habilite ea-nodejs20 no WHM."
 NODE_MAJOR="$(node --version | sed -E 's/^v([0-9]+).*/\1/')"
-[[ "$NODE_MAJOR" -ge 22 ]] || fail "Node.js 22 ou superior é necessário; encontrado: $(node --version)."
+[[ "$NODE_MAJOR" -ge 20 ]] || fail "Node.js 20 ou superior é necessário; encontrado: $(node --version)."
 
 command -v corepack >/dev/null 2>&1 || fail "Corepack não encontrado na instalação Node.js."
 mkdir -p "$HOME/.local/bin"

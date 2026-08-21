@@ -8,12 +8,12 @@ Este guia instala a **AutoFin** em uma conta cPanel hospedada em VPS administrad
 
 | Local | Ação necessária |
 | --- | --- |
-| WHM → EasyApache 4 | Instalar `ea-apache24-mod-passenger`, `ea-apache24-mod_env` e `ea-nodejs22`. |
+| WHM → EasyApache 4 | Instalar `ea-apache24-mod-passenger`, `ea-apache24-mod_env` e `ea-nodejs20`. |
 | WHM → Feature Manager | Habilitar **Application Manager** e **Terminal** para o pacote da conta cPanel. |
 | WHM → Create a New Account | Criar a conta cPanel do domínio da AutoFin. |
 | DNS | Apontar o registro `A` de `autofin.seudominio.com` ao IP da VPS. |
 
-O cPanel exige Passenger e `mod_env` para registrar aplicações com variáveis de ambiente; Node.js 22 é uma das versões disponibilizadas por EasyApache. [1] [2]
+O cPanel exige Passenger e `mod_env` para registrar aplicações com variáveis de ambiente. A AutoFin aceita **Node.js 20.20.2 ou superior**; use `ea-nodejs20` quando essa for a versão disponível no WHM. [1] [2]
 
 > A documentação padrão de Node.js do cPanel é direcionada a AlmaLinux/Rocky Linux. Em uma VPS cPanel sobre Ubuntu, use a documentação de Passenger para Ubuntu ou solicite ao provedor uma imagem compatível com cPanel. [2]
 
@@ -43,7 +43,7 @@ cd ~
 git clone <URL_PRIVADA_DO_REPOSITORIO> autofin
 cd ~/autofin
 
-export PATH="/opt/cpanel/ea-nodejs22/bin:$HOME/.local/bin:$PATH"
+export PATH="/opt/cpanel/ea-nodejs20/bin:$HOME/.local/bin:$PATH"
 corepack enable --install-directory "$HOME/.local/bin"
 corepack prepare pnpm@10.15.1 --activate
 pnpm install --frozen-lockfile

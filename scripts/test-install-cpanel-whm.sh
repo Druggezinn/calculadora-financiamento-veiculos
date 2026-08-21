@@ -54,6 +54,8 @@ output="$({
   printf '\n\ns\n' | HOME="$FAKE_HOME" PATH="$FAKE_BIN:$PATH" bash scripts/install-cpanel-whm.sh
 } 2>&1)"
 
+grep -q 'ea-nodejs20' "$PROJECT_DIR/scripts/install-cpanel-whm.sh"
+grep -q '\[\[ "$NODE_MAJOR" -ge 20 \]\]' "$PROJECT_DIR/scripts/install-cpanel-whm.sh"
 env_file="$FAKE_HOME/.config/autofin/autofin.env"
 [[ -f "$env_file" ]] || { printf 'Arquivo de ambiente não foi criado.\n' >&2; exit 1; }
 [[ "$(stat -c '%a' "$env_file")" == "600" ]] || { printf 'Permissão do ambiente não é 600.\n' >&2; exit 1; }
