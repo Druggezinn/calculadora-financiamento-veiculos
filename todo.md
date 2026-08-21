@@ -53,3 +53,9 @@
 - [x] Criar guia de implantação da AutoFin em VPS com CloudPanel, incluindo Node.js, banco, proxy, HTTPS, variáveis privadas e operação segura.
 - [x] Orientar passo a passo a criação das contas do banco e do arquivo privado de segredos no CloudPanel antes do primeiro build.
 - [x] Alinhar a configuração de overrides do pnpm ao lockfile para permitir `pnpm install --frozen-lockfile` na VPS.
+- [ ] Diagnosticar e corrigir as credenciais MySQL da implantação CloudPanel para concluir a migração inicial.
+- [ ] Conceder ao usuário MySQL correto a permissão de criar tabelas para executar a primeira migração da AutoFin.
+- [ ] Diagnosticar o MySQL indisponível em `127.0.0.1:3306` e ajustar a conexão da AutoFin no CloudPanel.
+- [ ] Criar o script `~/bin/autofin-start` e iniciar a AutoFin com PM2 no CloudPanel.
+- [ ] Validar o acesso HTTPS público, a retomada do PM2 após reinício e o provisionamento do administrador local no CloudPanel.
+- [x] Criar guia rápido de implantação da AutoFin em VPS com cPanel/WHM, incluindo Node.js, banco, variáveis privadas, HTTPS e reinicialização do processo.
