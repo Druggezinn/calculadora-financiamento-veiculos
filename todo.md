@@ -70,3 +70,4 @@
 - [x] Arquivar a correção do `node_modules` gerenciado pelo cPanel, não necessária no fluxo Amazon EC2 Ubuntu.
 - [x] Arquivar a ampliação de limites da conta cPanel, não necessária no fluxo Amazon EC2 Ubuntu.
 - [x] Criar e validar um script completo para instalar a AutoFin em Amazon EC2 com Ubuntu, Node.js, MySQL, Nginx, systemd, HTTPS e clone do repositório.
+- [x] Corrigir a propriedade do diretório temporário para permitir o clone Git pelo usuário SSH no instalador EC2.

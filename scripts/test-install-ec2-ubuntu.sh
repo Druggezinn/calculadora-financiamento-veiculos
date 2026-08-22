@@ -17,6 +17,7 @@ grep -q 'mysql-server' "$INSTALLER"
 grep -q 'certbot' "$INSTALLER"
 grep -q 'systemd' "$INSTALLER"
 grep -q 'git clone' "$INSTALLER"
+grep -q 'chown "$CALLER:$(id -gn "$CALLER")" "$CLONE_DIR"' "$INSTALLER"
 grep -q 'LOCAL_ADMIN_SETUP_TOKEN' "$INSTALLER"
 
 printf 'Teste estático do instalador EC2/Ubuntu aprovado.\n'

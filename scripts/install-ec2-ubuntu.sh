@@ -97,6 +97,7 @@ chown "$APP_USER:$APP_USER" "/var/backups/${APP_NAME}"
 CLONE_DIR="$(mktemp -d)"
 cleanup_clone() { rm -rf "$CLONE_DIR"; }
 trap cleanup_clone EXIT
+chown "$CALLER:$(id -gn "$CALLER")" "$CLONE_DIR"
 
 info "Clonando como o usuário SSH ${CALLER}..."
 sudo -H -u "$CALLER" git clone --depth=1 "$REPOSITORY_URL" "$CLONE_DIR/project"
