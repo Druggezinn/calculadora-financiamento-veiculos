@@ -79,19 +79,19 @@
 - [x] Substituir o Corepack por pnpm global fixo no instalador EC2 para evitar a leitura indevida do projeto do usuário SSH.
 - [x] Executar diretamente o binário do pnpm instalado globalmente para evitar o shim Corepack na EC2.
 - [x] Registrar a situação real de `/srv/autofin` na EC2 e preservar a instalação parcial; o diretório contém o clone do projeto e não deve ser limpo nesta retomada.
-- [ ] Atualizar o clone existente em `/srv/autofin` e concluir dependências, migrações, build e serviço sem apagar os dados parciais da EC2.
+- [x] Arquivar a retomada da instalação parcial na EC2, substituída pela implantação limpa e funcional na VPS Link Host.
 - [x] Avaliar se a modalidade gratuita da AWS possui recursos suficientes para instalar e operar a AutoFin com estabilidade.
 - [x] Comparar provedores de VPS econômicos com pelo menos 2 GB de RAM para indicar uma opção adequada à AutoFin.
-- [ ] Apresentar ao proprietário uma comparação objetiva de VPS econômicas e a recomendação final para a AutoFin.
-- [ ] Verificar os recursos e a adequação da VPS canadense da Link Host Brasil para hospedar a AutoFin.
-- [ ] Dimensionar a VPS e a estratégia de operação para três projetos Node.js acessíveis online.
-- [ ] Avaliar a viabilidade e o custo de migrar a AutoFin de Node.js para PHP em cPanel.
-- [ ] Apontar o domínio ou subdomínio da AutoFin para a nova VPS Link Host por registro DNS do tipo A.
-- [ ] Validar a VPS limpa da Link Host e executar a instalação da AutoFin em Ubuntu 24.04.
-- [ ] Criar o administrador inicial da AutoFin na nova VPS sem expor o token de provisionamento.
-- [ ] Diagnosticar e corrigir a mensagem de taxas indisponíveis após a primeira instalação na nova VPS.
-- [ ] Diagnosticar e corrigir a falha de sincronização manual das taxas do Banco Central na VPS publicada.
-- [ ] Coletar o erro efetivo do serviço AutoFin na VPS após a tentativa de sincronização publicada.
+- [x] Apresentar ao proprietário uma comparação objetiva de VPS econômicas e a recomendação final para a AutoFin.
+- [x] Verificar os recursos e a adequação da VPS canadense da Link Host Brasil para hospedar a AutoFin.
+- [x] Dimensionar a VPS e a estratégia de operação para três projetos Node.js acessíveis online.
+- [x] Avaliar a viabilidade e o custo de migrar a AutoFin de Node.js para PHP em cPanel.
+- [x] Apontar o subdomínio `calculadora.lmcell.com.br` para a nova VPS Link Host por registro DNS do tipo A e confirmar a propagação.
+- [x] Validar a VPS limpa da Link Host e executar a instalação da AutoFin em Ubuntu 24.04.
+- [x] Criar o administrador inicial da AutoFin na nova VPS sem expor o token de provisionamento.
+- [x] Diagnosticar e corrigir a mensagem de taxas indisponíveis após a primeira instalação na nova VPS.
+- [x] Diagnosticar e corrigir a falha de sincronização manual das taxas do Banco Central na VPS publicada.
+- [x] Identificar o erro efetivo da sincronização: o tempo de resposta da fonte oficial excedia o limite anterior de 15 segundos.
 - [x] Ajustar o tempo limite da consulta oficial para o tempo de resposta atual do Banco Central.
 - [x] Atualizar a integração BCB para o recurso unificado e filtrar localmente a modalidade de veículos pelos códigos oficiais.
 - [x] Adicionar carga inicial idempotente das seis financeiras para instalações novas sem taxas configuradas.
