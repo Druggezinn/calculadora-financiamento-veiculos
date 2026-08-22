@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Instalação inicial da AutoFin em Ubuntu 24.04 na Amazon EC2.
+# Instalação inicial da AutoFin em Ubuntu 24.04.
 # Execute como: sudo bash scripts/install-ec2-ubuntu.sh
 
 set -Eeuo pipefail
@@ -32,10 +32,10 @@ Instala a AutoFin em Ubuntu 24.04/22.04 com Node.js 20, pnpm, MySQL local,
 Nginx, systemd e HTTPS opcional via Certbot.
 
 Antes de executar:
-  1. Crie uma instância EC2 Ubuntu com ao menos 2 GB de RAM.
-  2. No Security Group da AWS, libere SSH (22) apenas para seu IP e HTTP/HTTPS (80/443).
+  1. Crie uma VPS Ubuntu com ao menos 2 GB de RAM.
+  2. Libere SSH (22) apenas para seu IP e HTTP/HTTPS (80/443) no firewall do provedor.
   3. Configure uma chave SSH no usuário que executará este script para clonar repositórios Git privados.
-  4. Aponte o DNS do domínio à instância se desejar emitir HTTPS agora.
+  4. Aponte o DNS do domínio à VPS se desejar emitir HTTPS agora.
 
 O script é destinado à primeira instalação e interrompe se /srv/autofin já contiver arquivos.
 EOF
@@ -49,8 +49,8 @@ fi
 [[ "${EUID}" -eq 0 ]] || fail "Execute como root via sudo: sudo bash scripts/install-ec2-ubuntu.sh"
 [[ -f "package.json" ]] || fail "Execute o script a partir da raiz do repositório AutoFin."
 
-CALLER="${SUDO_USER:-}"
-[[ -n "$CALLER" && "$CALLER" != "root" ]] || fail "Execute pelo usuário SSH normal com sudo, não diretamente como root."
+CALLER="${SUDO_USER:-${USER:-root}}"
+[[ -n "$CALLER" ]] || fail "Não foi possível identificar o usuário que executa a instalação."
 
 read -r -p "URL Git do projeto (ex.: git@github.com:conta/repo.git): " REPOSITORY_URL
 [[ -n "$REPOSITORY_URL" ]] || fail "A URL do repositório é obrigatória."
@@ -104,8 +104,13 @@ cleanup_clone() { rm -rf "$CLONE_DIR"; }
 trap cleanup_clone EXIT
 chown "$CALLER:$(id -gn "$CALLER")" "$CLONE_DIR"
 
-info "Clonando como o usuário SSH ${CALLER}..."
-sudo -H -u "$CALLER" git clone --depth=1 "$REPOSITORY_URL" "$CLONE_DIR/project"
+if [[ "$CALLER" == "root" ]]; then
+  info "Clonando como root; para repositório privado, configure a chave SSH do root antes de continuar..."
+  git clone --depth=1 "$REPOSITORY_URL" "$CLONE_DIR/project"
+else
+  info "Clonando como o usuário SSH ${CALLER}..."
+  sudo -H -u "$CALLER" git clone --depth=1 "$REPOSITORY_URL" "$CLONE_DIR/project"
+fi
 mkdir -p "$APP_DIR"
 cp -a "$CLONE_DIR/project/." "$APP_DIR/"
 chown -R "$APP_USER:$APP_USER" "$APP_DIR"

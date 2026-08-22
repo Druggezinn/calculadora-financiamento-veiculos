@@ -80,4 +80,13 @@
 - [x] Executar diretamente o binário do pnpm instalado globalmente para evitar o shim Corepack na EC2.
 - [x] Registrar a situação real de `/srv/autofin` na EC2 e preservar a instalação parcial; o diretório contém o clone do projeto e não deve ser limpo nesta retomada.
 - [ ] Atualizar o clone existente em `/srv/autofin` e concluir dependências, migrações, build e serviço sem apagar os dados parciais da EC2.
+- [x] Avaliar se a modalidade gratuita da AWS possui recursos suficientes para instalar e operar a AutoFin com estabilidade.
+- [x] Comparar provedores de VPS econômicos com pelo menos 2 GB de RAM para indicar uma opção adequada à AutoFin.
+- [ ] Apresentar ao proprietário uma comparação objetiva de VPS econômicas e a recomendação final para a AutoFin.
+- [ ] Verificar os recursos e a adequação da VPS canadense da Link Host Brasil para hospedar a AutoFin.
+- [ ] Dimensionar a VPS e a estratégia de operação para três projetos Node.js acessíveis online.
+- [ ] Avaliar a viabilidade e o custo de migrar a AutoFin de Node.js para PHP em cPanel.
+- [ ] Apontar o domínio ou subdomínio da AutoFin para a nova VPS Link Host por registro DNS do tipo A.
+- [ ] Validar a VPS limpa da Link Host e executar a instalação da AutoFin em Ubuntu 24.04.
+- [x] Adaptar o instalador da AutoFin para VPS novas cujo acesso inicial é exclusivamente pelo usuário root.
 - [x] Corrigir a expansão de `MIGRATION_DATABASE_URL` no comando de migração do instalador EC2.
