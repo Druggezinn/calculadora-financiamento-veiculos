@@ -71,3 +71,12 @@
 - [x] Arquivar a ampliação de limites da conta cPanel, não necessária no fluxo Amazon EC2 Ubuntu.
 - [x] Criar e validar um script completo para instalar a AutoFin em Amazon EC2 com Ubuntu, Node.js, MySQL, Nginx, systemd, HTTPS e clone do repositório.
 - [x] Corrigir a propriedade do diretório temporário para permitir o clone Git pelo usuário SSH no instalador EC2.
+- [x] Inspecionar e remover com segurança a instalação parcial em `/srv/autofin` antes de reiniciar o instalador EC2.
+- [x] Corrigir a criação do usuário de serviço para que `/srv/autofin` comece vazia no instalador EC2.
+- [x] Limpar efetivamente os arquivos padrão de `/srv/autofin` na EC2 e registrar a saída da verificação.
+- [x] Reexecutar o instalador EC2 atualizado e confirmar que ele avança além da verificação inicial de `/srv/autofin`.
+- [x] Corrigir a execução do pnpm para iniciar em `/srv/autofin` sob o usuário de serviço no instalador EC2.
+- [x] Substituir o Corepack por pnpm global fixo no instalador EC2 para evitar a leitura indevida do projeto do usuário SSH.
+- [x] Executar diretamente o binário do pnpm instalado globalmente para evitar o shim Corepack na EC2.
+- [ ] Registrar a listagem de `/srv/autofin` limpo na EC2 antes da próxima execução do instalador.
+- [ ] Atualizar o clone existente em `/srv/autofin` e concluir dependências, migrações, build e serviço sem apagar os dados parciais da EC2.

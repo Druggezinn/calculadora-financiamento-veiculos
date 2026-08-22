@@ -63,6 +63,10 @@ read -r -p "E-mail para renovação do Let's Encrypt: " CERT_EMAIL
 
 read -r -p "Emitir HTTPS agora? O DNS já deve apontar para esta EC2 [s/N]: " ENABLE_TLS
 
+if [[ -d "$APP_DIR" ]] && [[ -z "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.bash_logout' ! -name '.bashrc' ! -name '.profile' -print -quit 2>/dev/null)" ]]; then
+  rm -f "$APP_DIR/.bash_logout" "$APP_DIR/.bashrc" "$APP_DIR/.profile"
+fi
+
 if [[ -e "$APP_DIR" ]] && [[ -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]]; then
   fail "$APP_DIR já contém arquivos. O instalador evita sobrescrever uma instalação existente."
 fi
@@ -80,17 +84,18 @@ rm -f /tmp/autofin-nodesource.sh
 apt-get install -y nodejs
 
 if command -v corepack >/dev/null 2>&1; then
-  corepack enable
-  corepack prepare pnpm@10.15.1 --activate
-else
-  npm install --global pnpm@10.15.1
+  corepack disable pnpm || true
 fi
+npm install --global pnpm@10.15.1
 
 [[ "$(node --version)" =~ ^v20\. ]] || fail "Node.js 20 não foi instalado corretamente: $(node --version)"
-command -v pnpm >/dev/null 2>&1 || fail "pnpm não está disponível após a instalação."
+PNPM_CLI="$(npm root --global)/pnpm/bin/pnpm.cjs"
+[[ -r "$PNPM_CLI" ]] || fail "O binário direto do pnpm não foi encontrado em $PNPM_CLI."
+[[ "$(node "$PNPM_CLI" --version)" == "10.15.1" ]] || fail "A versão esperada do pnpm é 10.15.1; encontrada: $(node "$PNPM_CLI" --version)"
 
 info "Criando usuário de serviço e clonando o repositório..."
-id "$APP_USER" >/dev/null 2>&1 || useradd --system --create-home --home-dir "$APP_DIR" --shell /usr/sbin/nologin "$APP_USER"
+id "$APP_USER" >/dev/null 2>&1 || useradd --system --home-dir "$APP_DIR" --shell /usr/sbin/nologin "$APP_USER"
+install -d -o "$APP_USER" -g "$APP_USER" -m 750 "$APP_DIR"
 mkdir -p "$CONFIG_DIR" "/var/backups/${APP_NAME}"
 chown "$APP_USER:$APP_USER" "/var/backups/${APP_NAME}"
 
@@ -136,9 +141,9 @@ chown root:"$APP_USER" "$CONFIG_FILE"
 chmod 640 "$CONFIG_FILE"
 
 info "Instalando dependências, aplicando migrações e gerando o build..."
-sudo -u "$APP_USER" env HOME="$APP_DIR" pnpm --dir "$APP_DIR" install --frozen-lockfile
-sudo -u "$APP_USER" bash -c "set -a; source '$CONFIG_FILE'; set +a; cd '$APP_DIR'; DATABASE_URL=\"\$MIGRATION_DATABASE_URL\" pnpm exec drizzle-kit migrate"
-sudo -u "$APP_USER" env HOME="$APP_DIR" pnpm --dir "$APP_DIR" build
+sudo -u "$APP_USER" env HOME="$APP_DIR" bash -c "cd '$APP_DIR' && node '$PNPM_CLI' install --frozen-lockfile"
+sudo -u "$APP_USER" env HOME="$APP_DIR" bash -c "set -a; source '$CONFIG_FILE'; set +a; cd '$APP_DIR'; DATABASE_URL=\"\$MIGRATION_DATABASE_URL\" node '$PNPM_CLI' exec drizzle-kit migrate"
+sudo -u "$APP_USER" env HOME="$APP_DIR" bash -c "cd '$APP_DIR' && node '$PNPM_CLI' build"
 
 info "Criando serviço systemd..."
 cat >"$SERVICE_FILE" <<EOF
