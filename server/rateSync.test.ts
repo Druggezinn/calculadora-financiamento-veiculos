@@ -18,8 +18,25 @@ describe("sincronização de taxas do Banco Central", () => {
             InicioPeriodo: "2026-08-03T00:00:00",
             FimPeriodo: "2026-08-07T00:00:00",
             cnpj8: "12345678",
+            codigoSegmento: "1",
+            codigoModalidade: "401101",
           },
-          { InstituicaoFinanceira: "Registro inválido", TaxaJurosAoMes: "0", cnpj8: "" },
+          {
+            InstituicaoFinanceira: "Registro antigo",
+            TaxaJurosAoMes: "1.5",
+            InicioPeriodo: "2026-07-28T00:00:00",
+            FimPeriodo: "2026-08-01T00:00:00",
+            cnpj8: "12345678",
+            codigoSegmento: "1",
+            codigoModalidade: "401101",
+          },
+          {
+            InstituicaoFinanceira: "Modalidade diferente",
+            TaxaJurosAoMes: "3.2",
+            cnpj8: "87654321",
+            codigoSegmento: "1",
+            codigoModalidade: "402101",
+          },
         ],
       }),
     });
@@ -37,7 +54,9 @@ describe("sincronização de taxas do Banco Central", () => {
     ]);
 
     const requestedUrl = new URL(String(fetchMock.mock.calls[0]?.[0]));
-    expect(requestedUrl.searchParams.get("$filter")).toContain("Aquisição de veículos");
+    expect(requestedUrl.pathname).toContain("ConsultaUnificada");
+    expect(requestedUrl.searchParams.get("$filter")).toBeNull();
+    expect(requestedUrl.searchParams.get("$select")).toContain("codigoModalidade");
     expect(requestedUrl.searchParams.get("$select")).toContain("cnpj8");
   });
 });
