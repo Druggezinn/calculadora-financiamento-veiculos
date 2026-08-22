@@ -78,5 +78,6 @@
 - [x] Corrigir a execução do pnpm para iniciar em `/srv/autofin` sob o usuário de serviço no instalador EC2.
 - [x] Substituir o Corepack por pnpm global fixo no instalador EC2 para evitar a leitura indevida do projeto do usuário SSH.
 - [x] Executar diretamente o binário do pnpm instalado globalmente para evitar o shim Corepack na EC2.
-- [ ] Registrar a listagem de `/srv/autofin` limpo na EC2 antes da próxima execução do instalador.
+- [x] Registrar a situação real de `/srv/autofin` na EC2 e preservar a instalação parcial; o diretório contém o clone do projeto e não deve ser limpo nesta retomada.
 - [ ] Atualizar o clone existente em `/srv/autofin` e concluir dependências, migrações, build e serviço sem apagar os dados parciais da EC2.
+- [x] Corrigir a expansão de `MIGRATION_DATABASE_URL` no comando de migração do instalador EC2.

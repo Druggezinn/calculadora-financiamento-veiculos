@@ -142,7 +142,13 @@ chmod 640 "$CONFIG_FILE"
 
 info "Instalando dependências, aplicando migrações e gerando o build..."
 sudo -u "$APP_USER" env HOME="$APP_DIR" bash -c "cd '$APP_DIR' && node '$PNPM_CLI' install --frozen-lockfile"
-sudo -u "$APP_USER" env HOME="$APP_DIR" bash -c "set -a; source '$CONFIG_FILE'; set +a; cd '$APP_DIR'; DATABASE_URL=\"\$MIGRATION_DATABASE_URL\" node '$PNPM_CLI' exec drizzle-kit migrate"
+sudo -u "$APP_USER" env HOME="$APP_DIR" CONFIG_FILE="$CONFIG_FILE" APP_DIR="$APP_DIR" PNPM_CLI="$PNPM_CLI" bash -c '
+  set -a
+  source "$CONFIG_FILE"
+  set +a
+  cd "$APP_DIR"
+  DATABASE_URL="$MIGRATION_DATABASE_URL" node "$PNPM_CLI" exec drizzle-kit migrate
+'
 sudo -u "$APP_USER" env HOME="$APP_DIR" bash -c "cd '$APP_DIR' && node '$PNPM_CLI' build"
 
 info "Criando serviço systemd..."
