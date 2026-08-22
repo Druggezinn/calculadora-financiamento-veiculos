@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchBcbVehicleRates } from "./rateSync";
+import { BCB_REQUEST_TIMEOUT_MS, fetchBcbVehicleRates } from "./rateSync";
 
 describe("sincronização de taxas do Banco Central", () => {
   afterEach(() => {
@@ -58,5 +58,9 @@ describe("sincronização de taxas do Banco Central", () => {
     expect(requestedUrl.searchParams.get("$filter")).toBeNull();
     expect(requestedUrl.searchParams.get("$select")).toContain("codigoModalidade");
     expect(requestedUrl.searchParams.get("$select")).toContain("cnpj8");
+  });
+
+  it("mantém um tempo limite compatível com a resposta atual do recurso unificado", () => {
+    expect(BCB_REQUEST_TIMEOUT_MS).toBeGreaterThanOrEqual(45_000);
   });
 });

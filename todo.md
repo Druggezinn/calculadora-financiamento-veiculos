@@ -91,6 +91,8 @@
 - [ ] Criar o administrador inicial da AutoFin na nova VPS sem expor o token de provisionamento.
 - [ ] Diagnosticar e corrigir a mensagem de taxas indisponíveis após a primeira instalação na nova VPS.
 - [ ] Diagnosticar e corrigir a falha de sincronização manual das taxas do Banco Central na VPS publicada.
+- [ ] Coletar o erro efetivo do serviço AutoFin na VPS após a tentativa de sincronização publicada.
+- [x] Ajustar o tempo limite da consulta oficial para o tempo de resposta atual do Banco Central.
 - [x] Atualizar a integração BCB para o recurso unificado e filtrar localmente a modalidade de veículos pelos códigos oficiais.
 - [x] Adicionar carga inicial idempotente das seis financeiras para instalações novas sem taxas configuradas.
 - [x] Adaptar o instalador da AutoFin para VPS novas cujo acesso inicial é exclusivamente pelo usuário root.

@@ -3,6 +3,7 @@ export const BCB_VEHICLE_RATES_URL =
 
 const VEHICLE_SEGMENT_CODE = "1";
 const VEHICLE_MODALITY_CODE = "401101";
+export const BCB_REQUEST_TIMEOUT_MS = 45_000;
 
 type BcbRatePayload = {
   InstituicaoFinanceira?: string;
@@ -36,7 +37,7 @@ export async function fetchBcbVehicleRates(): Promise<BcbVehicleRate[]> {
   );
 
   const abortController = new AbortController();
-  const timeout = setTimeout(() => abortController.abort(), 15_000);
+  const timeout = setTimeout(() => abortController.abort(), BCB_REQUEST_TIMEOUT_MS);
   try {
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
