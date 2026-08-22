@@ -88,5 +88,8 @@
 - [ ] Avaliar a viabilidade e o custo de migrar a AutoFin de Node.js para PHP em cPanel.
 - [ ] Apontar o domínio ou subdomínio da AutoFin para a nova VPS Link Host por registro DNS do tipo A.
 - [ ] Validar a VPS limpa da Link Host e executar a instalação da AutoFin em Ubuntu 24.04.
+- [ ] Criar o administrador inicial da AutoFin na nova VPS sem expor o token de provisionamento.
+- [ ] Diagnosticar e corrigir a mensagem de taxas indisponíveis após a primeira instalação na nova VPS.
+- [x] Adicionar carga inicial idempotente das seis financeiras para instalações novas sem taxas configuradas.
 - [x] Adaptar o instalador da AutoFin para VPS novas cujo acesso inicial é exclusivamente pelo usuário root.
 - [x] Corrigir a expansão de `MIGRATION_DATABASE_URL` no comando de migração do instalador EC2.

@@ -12,6 +12,11 @@ import {
   users,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import {
+  INITIAL_FINANCIAL_INSTITUTIONS,
+  INITIAL_RATE_REFERENCE_DESCRIPTION,
+  INITIAL_RATE_REFERENCE_URL,
+} from "./financialInstitutionDefaults";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -103,11 +108,42 @@ export async function listActiveFinancialInstitutions() {
   const db = await getDb();
   if (!db) return [];
 
+  await ensureInitialFinancialInstitutions();
+
   return db
     .select()
     .from(financialInstitutions)
     .where(eq(financialInstitutions.isActive, true))
     .orderBy(asc(financialInstitutions.sortOrder));
+}
+
+/**
+ * Preenche somente bancos vazios criados em uma instalação nova. Não altera
+ * tabelas que já tenham taxas editadas pelo proprietário.
+ */
+export async function ensureInitialFinancialInstitutions() {
+  const db = await getDb();
+  if (!db) return false;
+
+  const existing = await db
+    .select({ id: financialInstitutions.id })
+    .from(financialInstitutions)
+    .limit(1);
+
+  if (existing.length > 0) return false;
+
+  await db.insert(financialInstitutions).values(
+    INITIAL_FINANCIAL_INSTITUTIONS.map(institution => ({
+      ...institution,
+      sourceUrl: INITIAL_RATE_REFERENCE_URL,
+      sourceDescription: INITIAL_RATE_REFERENCE_DESCRIPTION,
+      referenceStart: "2026-07-28",
+      referenceEnd: "2026-08-03",
+      isActive: true,
+    }))
+  );
+
+  return true;
 }
 
 export async function updateFinancialInstitutionRate(input: {
